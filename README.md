@@ -1,4 +1,4 @@
-# @froggy1014/n8n-nodes-godaddy
+# n8n-nodes-godaddy
 
 Unofficial [n8n](https://n8n.io) community node for the [GoDaddy Domains v3 API](https://developer.godaddy.com/docs/api-users).
 Search, quote, register, and manage domains and DNS records from n8n workflows.
@@ -7,7 +7,7 @@ Search, quote, register, and manage domains and DNS records from n8n workflows.
 
 ## Install
 
-In n8n: **Settings → Community Nodes → Install** → `@froggy1014/n8n-nodes-godaddy`
+In n8n: **Settings → Community Nodes → Install** → `n8n-nodes-godaddy`
 
 ## Credentials
 

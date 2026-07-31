@@ -1,5 +1,5 @@
 {
-	"name": "@froggy1014/n8n-nodes-godaddy",
+	"name": "n8n-nodes-godaddy",
 	"version": "0.1.0",
 	"description": "Unofficial n8n community node for the GoDaddy Domains v3 API. Generated from the official OpenAPI spec and kept in sync automatically. Not affiliated with GoDaddy Inc.",
 	"keywords": [

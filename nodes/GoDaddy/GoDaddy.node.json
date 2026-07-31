@@ -1,5 +1,5 @@
 {
-	"node": "@froggy1014/n8n-nodes-godaddy.goDaddy",
+	"node": "n8n-nodes-godaddy.goDaddy",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["Development"],
