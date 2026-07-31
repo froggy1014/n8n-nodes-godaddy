@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # --ignore-scripts skips the isolated-vm native build (transitive dep of
+      # n8n-workflow) which fails to compile on the runner and is not needed
+      # for tsc/eslint.
+      - run: npm ci --ignore-scripts
+
+      - name: Build
+        run: npm run build
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Generated files are current
+        run: git diff --exit-code -- nodes/GoDaddy/descriptions nodes/GoDaddy/registry.ts nodes/GoDaddy/mocks.ts

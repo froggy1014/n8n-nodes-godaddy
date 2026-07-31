@@ -1,0 +1,68 @@
+{
+	"name": "@froggy1014/n8n-nodes-godaddy",
+	"version": "0.1.0",
+	"description": "Unofficial n8n community node for the GoDaddy Domains v3 API. Generated from the official OpenAPI spec and kept in sync automatically. Not affiliated with GoDaddy Inc.",
+	"keywords": [
+		"n8n-community-node-package",
+		"godaddy",
+		"domain",
+		"dns"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/froggy1014/n8n-nodes-godaddy#readme",
+	"author": {
+		"name": "froggy1014",
+		"email": "me@jeongmin.dev",
+		"url": "https://github.com/froggy1014"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/froggy1014/n8n-nodes-godaddy.git"
+	},
+	"bugs": {
+		"url": "https://github.com/froggy1014/n8n-nodes-godaddy/issues"
+	},
+	"engines": {
+		"node": ">=20.15"
+	},
+	"main": "index.js",
+	"scripts": {
+		"fetch-spec": "node scripts/fetch-spec.mjs",
+		"generate": "node scripts/generate.mjs",
+		"build": "npm run generate && tsc && npm run copy:icons && npm run copy:codex",
+		"copy:icons": "mkdir -p dist/nodes/GoDaddy dist/credentials && cp nodes/GoDaddy/*.svg dist/nodes/GoDaddy/ && cp credentials/*.svg dist/credentials/",
+		"copy:codex": "cp nodes/GoDaddy/GoDaddy.node.json dist/nodes/GoDaddy/ 2>/dev/null || true",
+		"dev": "tsc --watch",
+		"format": "prettier nodes credentials --write",
+		"lint": "eslint nodes credentials package.json",
+		"lintfix": "eslint nodes credentials package.json --fix",
+		"prepublishOnly": "npm run build && npm run lint -c .eslintrc.prepublish.js nodes credentials package.json"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"credentials": [
+			"dist/credentials/GoDaddyApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/GoDaddy/GoDaddy.node.js"
+		]
+	},
+	"devDependencies": {
+		"@types/node": "^20.19.43",
+		"@typescript-eslint/parser": "^7.18.0",
+		"eslint": "^8.57.1",
+		"eslint-plugin-n8n-nodes-base": "^1.16.7",
+		"n8n-workflow": "*",
+		"prettier": "^3.9.6",
+		"typescript": "^5.5.0"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}

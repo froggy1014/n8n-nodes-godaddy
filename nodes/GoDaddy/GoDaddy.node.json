@@ -1,0 +1,28 @@
+{
+	"node": "@froggy1014/n8n-nodes-godaddy.goDaddy",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Development"],
+	"alias": [
+		"godaddy",
+		"domain",
+		"dns",
+		"domain registration",
+		"nameserver",
+		"도메인",
+		"디엔에스",
+		"네임서버"
+	],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://developer.godaddy.com/docs/api-users/auth/how-to"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/froggy1014/n8n-nodes-godaddy#readme"
+			}
+		]
+	}
+}

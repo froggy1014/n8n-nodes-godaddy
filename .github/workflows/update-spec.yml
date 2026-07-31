@@ -1,0 +1,66 @@
+# Watches the GoDaddy Domains v3 OpenAPI spec. GoDaddy publishes no release
+# feed or changelog for it, so the spec JSON itself is the source of truth:
+# this workflow re-fetches it weekly and diffs the stored copy. Any change
+# (version bump or silent content edit) regenerates the node, bumps the
+# package version, and opens a PR with the diff.
+name: Update GoDaddy spec
+
+on:
+  schedule:
+    - cron: '0 0 * * 1' # every Monday 00:00 UTC (09:00 KST)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch latest spec
+        run: node scripts/fetch-spec.mjs
+
+      - name: Detect changes
+        id: diff
+        run: |
+          if git diff --quiet -- scripts/spec; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Spec unchanged. Nothing to do."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "version=$(node -p "require('./scripts/spec/godaddy-version.json').version")" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Regenerate from new spec
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          npm ci --ignore-scripts
+          npm run build
+          npm run lint
+          npm version minor --no-git-tag-version
+
+      - name: Open PR
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: spec-update/v${{ steps.diff.outputs.version }}
+          commit-message: 'feat: update to GoDaddy Domains API v${{ steps.diff.outputs.version }}'
+          title: 'Update to GoDaddy Domains API v${{ steps.diff.outputs.version }}'
+          body: |
+            Automated spec sync.
+
+            - Source: https://developer.godaddy.com/openapi/domains-v3.json (spec version ${{ steps.diff.outputs.version }})
+            - GoDaddy has no release feed; this PR was opened because the fetched spec differs from the stored copy.
+            - Spec re-fetched, descriptions/registry regenerated, build and lint passed in CI.
+
+            Review the generated diff (`nodes/GoDaddy/descriptions/`, `nodes/GoDaddy/registry.ts`) for
+            removed or renamed operations before merging.
+          labels: spec-update
+          delete-branch: true
