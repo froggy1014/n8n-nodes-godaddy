@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write # npm provenance (required for n8n verified community nodes)
 
 jobs:
   publish:
@@ -24,6 +25,6 @@ jobs:
       - run: npm ci --ignore-scripts
 
       # prepublishOnly runs build + strict lint
-      - run: npm publish
+      - run: npm publish --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
