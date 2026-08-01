@@ -4,6 +4,8 @@ import {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
+	JsonObject,
+	NodeApiError,
 	NodeConnectionTypes,
 } from 'n8n-workflow';
 import {
@@ -34,7 +36,7 @@ export class GoDaddy implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'GoDaddy',
 		name: 'goDaddy',
-		icon: 'file:godaddy.svg',
+		icon: { light: 'file:godaddy.svg', dark: 'file:godaddy.svg' },
 		group: ['transform'],
 		version: 1,
 		usableAsTool: true,
@@ -138,7 +140,8 @@ export class GoDaddy implements INodeType {
 					returnData.push({ json: { error: error.message }, pairedItem: { item: i } });
 					continue;
 				}
-				throw error;
+				if (error instanceof NodeApiError) throw error;
+				throw new NodeApiError(this.getNode(), error as JsonObject, { itemIndex: i });
 			}
 		}
 

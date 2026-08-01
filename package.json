@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-godaddy",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "Unofficial n8n community node for the GoDaddy Domains v3 API. Generated from the official OpenAPI spec and kept in sync automatically. Not affiliated with GoDaddy Inc.",
 	"keywords": [
 		"n8n-community-node-package",

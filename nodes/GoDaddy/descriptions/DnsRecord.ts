@@ -90,6 +90,14 @@ export const dnsRecordFields: INodeProperties[] = [
 				value: "AAAA",
 			},
 			{
+				name: "ALIAS",
+				value: "ALIAS",
+			},
+			{
+				name: "CAA",
+				value: "CAA",
+			},
+			{
 				name: "CNAME",
 				value: "CNAME",
 			},
@@ -98,28 +106,20 @@ export const dnsRecordFields: INodeProperties[] = [
 				value: "MX",
 			},
 			{
-				name: "TXT",
-				value: "TXT",
-			},
-			{
 				name: "NS",
 				value: "NS",
-			},
-			{
-				name: "SRV",
-				value: "SRV",
 			},
 			{
 				name: "SOA",
 				value: "SOA",
 			},
 			{
-				name: "CAA",
-				value: "CAA",
+				name: "SRV",
+				value: "SRV",
 			},
 			{
-				name: "ALIAS",
-				value: "ALIAS",
+				name: "TXT",
+				value: "TXT",
 			},
 		],
 		default: "A",
@@ -201,7 +201,7 @@ export const dnsRecordFields: INodeProperties[] = [
 				name: "port",
 				type: "number",
 				default: 0,
-				description: "Port number for SRV records.",
+				description: "Port number for SRV records",
 			},
 			{
 				displayName: "Priority",
@@ -263,7 +263,7 @@ export const dnsRecordFields: INodeProperties[] = [
 		name: "recordId",
 		type: "string",
 		default: "",
-		description: "Server-assigned DNS record identifier within the zone.",
+		description: "Server-assigned DNS record identifier within the zone",
 		required: true,
 		displayOptions: {
 			show: {
@@ -337,14 +337,14 @@ export const dnsRecordFields: INodeProperties[] = [
 				name: "pageSize",
 				type: "number",
 				default: 25,
-				description: "Maximum number of items to return per page.",
+				description: "Maximum number of items to return per page",
 			},
 			{
 				displayName: "Total Required",
 				name: "totalRequired",
 				type: "boolean",
 				default: false,
-				description: "When true, the response includes totalItems and totalPages for the current filter when at least one record matches. Both are omitted when the result set is empty. Defaults to false; omitting totals avoids the cost of a count query on large collections.",
+				description: "Whether when true, the response includes totalItems and totalPages for the current filter when at least one record matches. Both are omitted when the result set is empty. Defaults to false; omitting totals avoids the cost of a count query on large collections.",
 			},
 			{
 				displayName: "Type",
@@ -360,6 +360,14 @@ export const dnsRecordFields: INodeProperties[] = [
 						value: "AAAA",
 					},
 					{
+						name: "ALIAS",
+						value: "ALIAS",
+					},
+					{
+						name: "CAA",
+						value: "CAA",
+					},
+					{
 						name: "CNAME",
 						value: "CNAME",
 					},
@@ -368,32 +376,24 @@ export const dnsRecordFields: INodeProperties[] = [
 						value: "MX",
 					},
 					{
-						name: "TXT",
-						value: "TXT",
-					},
-					{
 						name: "NS",
 						value: "NS",
-					},
-					{
-						name: "SRV",
-						value: "SRV",
 					},
 					{
 						name: "SOA",
 						value: "SOA",
 					},
 					{
-						name: "CAA",
-						value: "CAA",
+						name: "SRV",
+						value: "SRV",
 					},
 					{
-						name: "ALIAS",
-						value: "ALIAS",
+						name: "TXT",
+						value: "TXT",
 					},
 				],
 				default: "A",
-				description: "Filter results to records of this DNS type.",
+				description: "Filter results to records of this DNS type",
 			},
 		],
 	},

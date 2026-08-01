@@ -17,7 +17,7 @@ export class GoDaddyApi implements ICredentialType {
 
 	displayName = 'GoDaddy API';
 
-	icon: Icon = 'file:godaddy.svg';
+	icon: Icon = { light: 'file:godaddy.svg', dark: 'file:godaddy.svg' };
 
 	documentationUrl = 'https://developer.godaddy.com/docs/api-users/auth/how-to';
 

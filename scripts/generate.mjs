@@ -102,9 +102,25 @@ function camel(name) {
 	return name.replace(/[-_.]+(\w)/g, (_, c) => c.toUpperCase());
 }
 
-function cleanDescription(text) {
+/**
+ * Normalize a description to satisfy the n8n verified-node lint rules
+ * (which the @n8n/scan-community-package scanner enforces on dist, ignoring
+ * eslint-disable comments): 'Id' → 'ID', single sentence → no final period,
+ * multiple sentences → final period required, booleans start with 'Whether'.
+ */
+function cleanDescription(text, { boolean = false } = {}) {
 	if (!text) return '';
-	return text.replace(/\s+/g, ' ').trim();
+	let out = text
+		.replace(/\s+/g, ' ')
+		.trim()
+		.replace(/\b[Ii]d(s?)\b/g, 'ID$1');
+	if (boolean && !/^Whether/i.test(out)) {
+		out = `Whether ${out[0].toLowerCase()}${out.slice(1)}`;
+	}
+	const multiSentence = /\.\s/.test(out);
+	if (multiSentence && !out.endsWith('.')) out = `${out}.`;
+	if (!multiSentence) out = out.replace(/\.+$/, '');
+	return out;
 }
 
 /** normalized schema → n8n property fragments */
@@ -112,7 +128,9 @@ function toN8nType(schema) {
 	if (schema.enum) {
 		return {
 			type: 'options',
-			options: schema.enum.map((v) => ({ name: humanize(String(v)), value: v })),
+			options: schema.enum
+				.map((v) => ({ name: humanize(String(v)), value: v }))
+				.sort((a, b) => a.name.localeCompare(b.name)),
 			default: schema.default ?? schema.enum[0],
 		};
 	}
@@ -257,9 +275,16 @@ for (const [resource, resDef] of Object.entries(allowlist)) {
 			if (p.in === 'query' && p.schema.type === 'array') {
 				// explode:false form style → the API expects a comma-separated string
 				t = { type: 'string', default: '' };
-				description = `${p.description ? `${p.description} ` : ''}(comma-separated list)`.trim();
+				description = cleanDescription(
+					p.description
+						? `${p.description.replace(/\.+$/, '')}. Comma-separated list.`
+						: 'Comma-separated list',
+				);
 			} else {
 				t = toN8nType(p.schema);
+			}
+			if (t.type === 'boolean' && description) {
+				description = cleanDescription(description, { boolean: true });
 			}
 
 			const field = {
@@ -270,6 +295,9 @@ for (const [resource, resDef] of Object.entries(allowlist)) {
 				default: t.default,
 				description,
 			};
+			if (t.type === 'string' && /token|secret|password/i.test(paramName)) {
+				field.typeOptions = { password: true };
+			}
 
 			if (p.required) {
 				field.required = true;

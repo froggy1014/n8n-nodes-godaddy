@@ -33,7 +33,7 @@ export const operationFields: INodeProperties[] = [
 		name: "operationId",
 		type: "string",
 		default: "",
-		description: "The server-assigned operation identifier returned in the 202 response of any async domain mutation.",
+		description: "The server-assigned operation identifier returned in the 202 response of any async domain mutation",
 		required: true,
 		displayOptions: {
 			show: {

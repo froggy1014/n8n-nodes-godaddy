@@ -45,7 +45,7 @@ export const registrationFields: INodeProperties[] = [
 		name: "registrationId",
 		type: "string",
 		default: "",
-		description: "Server-assigned registration identifier.",
+		description: "Server-assigned registration identifier",
 		required: true,
 		displayOptions: {
 			show: {
@@ -63,7 +63,7 @@ export const registrationFields: INodeProperties[] = [
 		name: "domain",
 		type: "string",
 		default: "",
-		description: "The domain name to quote, in punycode A-label form.",
+		description: "The domain name to quote, in punycode A-label form",
 		required: true,
 		displayOptions: {
 			show: {
@@ -138,7 +138,7 @@ export const registrationFields: INodeProperties[] = [
 				name: "profileId",
 				type: "string",
 				default: "",
-				description: "A universally unique identifier (UUID) in [RFC-4122 format](https://tools.ietf.org/html/rfc4122).",
+				description: "A universally unique identifier (UUID) in [RFC-4122 format](https://tools.ietf.org/html/rfc4122)",
 			},
 		],
 	},
@@ -165,7 +165,10 @@ export const registrationFields: INodeProperties[] = [
 		name: "quoteToken",
 		type: "string",
 		default: "",
-		description: "A universally unique identifier (UUID) in [RFC-4122 format](https://tools.ietf.org/html/rfc4122).",
+		description: "A universally unique identifier (UUID) in [RFC-4122 format](https://tools.ietf.org/html/rfc4122)",
+		typeOptions: {
+			password: true,
+		},
 		required: true,
 		displayOptions: {
 			show: {
@@ -183,7 +186,7 @@ export const registrationFields: INodeProperties[] = [
 		name: "consent",
 		type: "json",
 		default: "{}",
-		description: "Customer consent record for a domain operation, capturing which legal agreements were accepted, when, and by whom. On execute, the caller supplies agreementTypes and agreedAt. The server derives agreedBy from the authenticated request context (OAuth identity, X-Shopper-Id, client IP, and transmission channel).",
+		description: "Customer consent record for a domain operation, capturing which legal agreements were accepted, when, and by whom. On execute, the caller supplies agreementTypes and agreedAt. The server derives agreedBy from the authenticated request context (OAuth identity, X-Shopper-ID, client IP, and transmission channel).",
 		required: true,
 		displayOptions: {
 			show: {
@@ -258,7 +261,7 @@ export const registrationFields: INodeProperties[] = [
 				name: "operationId",
 				type: "string",
 				default: "",
-				description: "A universally unique identifier (UUID) in [RFC-4122 format](https://tools.ietf.org/html/rfc4122).",
+				description: "A universally unique identifier (UUID) in [RFC-4122 format](https://tools.ietf.org/html/rfc4122)",
 			},
 			{
 				displayName: "Period",
@@ -279,14 +282,14 @@ export const registrationFields: INodeProperties[] = [
 				name: "profileId",
 				type: "string",
 				default: "",
-				description: "A universally unique identifier (UUID) in [RFC-4122 format](https://tools.ietf.org/html/rfc4122).",
+				description: "A universally unique identifier (UUID) in [RFC-4122 format](https://tools.ietf.org/html/rfc4122)",
 			},
 			{
 				displayName: "Registration ID",
 				name: "registrationId",
 				type: "string",
 				default: "",
-				description: "A universally unique identifier (UUID) in [RFC-4122 format](https://tools.ietf.org/html/rfc4122).",
+				description: "A universally unique identifier (UUID) in [RFC-4122 format](https://tools.ietf.org/html/rfc4122)",
 			},
 			{
 				displayName: "Status",

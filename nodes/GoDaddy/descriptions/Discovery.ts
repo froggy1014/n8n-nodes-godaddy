@@ -39,7 +39,7 @@ export const discoveryFields: INodeProperties[] = [
 		name: "domain",
 		type: "string",
 		default: "",
-		description: "The domain name to check, in punycode A-label form for IDNs.",
+		description: "The domain name to check, in punycode A-label form for IDNs",
 		required: true,
 		displayOptions: {
 			show: {
@@ -82,12 +82,12 @@ export const discoveryFields: INodeProperties[] = [
 				type: "options",
 				options: [
 					{
-						name: "SPEED",
-						value: "SPEED",
-					},
-					{
 						name: "ACCURACY",
 						value: "ACCURACY",
+					},
+					{
+						name: "SPEED",
+						value: "SPEED",
 					},
 				],
 				default: "SPEED",
@@ -117,14 +117,14 @@ export const discoveryFields: INodeProperties[] = [
 				name: "lengthMax",
 				type: "number",
 				default: 0,
-				description: "Maximum length of second-level domain.",
+				description: "Maximum length of second-level domain",
 			},
 			{
 				displayName: "Length Min",
 				name: "lengthMin",
 				type: "number",
 				default: 0,
-				description: "Minimum length of second-level domain.",
+				description: "Minimum length of second-level domain",
 			},
 			{
 				displayName: "Page Size",
@@ -145,14 +145,14 @@ export const discoveryFields: INodeProperties[] = [
 				name: "sources",
 				type: "string",
 				default: "",
-				description: "Suggestion source strategies to activate. (comma-separated list)",
+				description: "Suggestion source strategies to activate. Comma-separated list.",
 			},
 			{
 				displayName: "TLDs",
 				name: "tlds",
 				type: "string",
 				default: "",
-				description: "Top-level domains to be included in suggestions. (comma-separated list)",
+				description: "Top-level domains to be included in suggestions. Comma-separated list.",
 			},
 		],
 	},
