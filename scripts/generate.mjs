@@ -117,7 +117,8 @@ function cleanDescription(text, { boolean = false } = {}) {
 	if (boolean && !/^Whether/i.test(out)) {
 		out = `Whether ${out[0].toLowerCase()}${out.slice(1)}`;
 	}
-	const multiSentence = /\.\s/.test(out);
+	// abbreviations (e.g., i.e., etc.) are not sentence boundaries
+	const multiSentence = /\.\s/.test(out.replace(/\b(e\.g\.|i\.e\.|etc\.|vs\.)/gi, ''));
 	if (multiSentence && !out.endsWith('.')) out = `${out}.`;
 	if (!multiSentence) out = out.replace(/\.+$/, '');
 	return out;

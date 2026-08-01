@@ -36,7 +36,7 @@ export class GoDaddy implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'GoDaddy',
 		name: 'goDaddy',
-		icon: { light: 'file:godaddy.svg', dark: 'file:godaddy.svg' },
+		icon: { light: 'file:godaddy.svg', dark: 'file:godaddy.dark.svg' },
 		group: ['transform'],
 		version: 1,
 		usableAsTool: true,
@@ -140,7 +140,6 @@ export class GoDaddy implements INodeType {
 					returnData.push({ json: { error: error.message }, pairedItem: { item: i } });
 					continue;
 				}
-				if (error instanceof NodeApiError) throw error;
 				throw new NodeApiError(this.getNode(), error as JsonObject, { itemIndex: i });
 			}
 		}

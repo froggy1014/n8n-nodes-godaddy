@@ -215,14 +215,14 @@ export const dnsRecordFields: INodeProperties[] = [
 				name: "protocol",
 				type: "string",
 				default: "",
-				description: "Protocol identifier for SRV records (e.g. _tcp, _udp).",
+				description: "Protocol identifier for SRV records (e.g. _tcp, _udp)",
 			},
 			{
 				displayName: "Service",
 				name: "service",
 				type: "string",
 				default: "",
-				description: "Service label for SRV records (e.g. _http).",
+				description: "Service label for SRV records (e.g. _http)",
 			},
 			{
 				displayName: "Tag",
