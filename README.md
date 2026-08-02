@@ -1,22 +1,35 @@
-# n8n-nodes-godaddy
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/froggy1014/n8n-nodes-godaddy/main/nodes/GoDaddy/godaddy.dark.svg">
+    <img src="https://raw.githubusercontent.com/froggy1014/n8n-nodes-godaddy/main/nodes/GoDaddy/godaddy.svg" alt="GoDaddy" width="88" height="88">
+  </picture>
+</p>
 
-[![CI](https://github.com/froggy1014/n8n-nodes-godaddy/actions/workflows/ci.yml/badge.svg)](https://github.com/froggy1014/n8n-nodes-godaddy/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/n8n-nodes-godaddy?logo=npm)](https://www.npmjs.com/package/n8n-nodes-godaddy)
-[![npm downloads](https://img.shields.io/npm/dm/n8n-nodes-godaddy?logo=npm)](https://www.npmjs.com/package/n8n-nodes-godaddy)
-[![n8n community node](https://img.shields.io/badge/n8n-community%20node-EA4B71)](https://docs.n8n.io/integrations/community-nodes/)
-[![GoDaddy API](https://img.shields.io/badge/GoDaddy%20Domains-v3.1.0-1BDBDB?logo=godaddy)](https://developer.godaddy.com/docs/api-users)
-[![Spec-generated](https://img.shields.io/badge/OpenAPI-spec--generated-6E56CF)](#-architecture)
-[![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A520.15-green?logo=node.js)](https://nodejs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.5%2B-blue?logo=typescript)](https://www.typescriptlang.org)
-[![License](https://img.shields.io/github/license/froggy1014/n8n-nodes-godaddy)](LICENSE)
+<h1 align="center">n8n-nodes-godaddy</h1>
 
-Unofficial n8n community node for the **[GoDaddy Domains v3 API](https://developer.godaddy.com/docs/api-users)** — search,
-quote, register, and manage domains and DNS records straight from your workflows.
+<p align="center">
+  Unofficial <a href="https://n8n.io">n8n</a> community node for the
+  <a href="https://developer.godaddy.com/docs/api-users"><b>GoDaddy Domains v3 API</b></a><br>
+  Search, quote, register, and manage domains and DNS records straight from your workflows.
+</p>
+
+<p align="center">
+  <a href="https://github.com/froggy1014/n8n-nodes-godaddy/actions/workflows/ci.yml"><img src="https://github.com/froggy1014/n8n-nodes-godaddy/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://www.npmjs.com/package/n8n-nodes-godaddy"><img src="https://img.shields.io/npm/v/n8n-nodes-godaddy?logo=npm" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/n8n-nodes-godaddy"><img src="https://img.shields.io/npm/dm/n8n-nodes-godaddy?logo=npm" alt="npm downloads"></a>
+  <a href="https://docs.n8n.io/integrations/community-nodes/"><img src="https://img.shields.io/badge/n8n-community%20node-EA4B71" alt="n8n community node"></a>
+  <a href="https://developer.godaddy.com/docs/api-users"><img src="https://img.shields.io/badge/GoDaddy%20Domains-v3.1.0-1BDBDB?logo=godaddy" alt="GoDaddy Domains API"></a>
+  <a href="#-architecture"><img src="https://img.shields.io/badge/OpenAPI-spec--generated-6E56CF" alt="Spec-generated"></a>
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node.js-%E2%89%A520.15-green?logo=node.js" alt="Node.js"></a>
+  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5.5%2B-blue?logo=typescript" alt="TypeScript"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/froggy1014/n8n-nodes-godaddy" alt="License"></a>
+</p>
 
 Every operation is **generated from GoDaddy's official OpenAPI spec** and re-synced weekly by CI, so the node never
 drifts from the API.
 
-> ⚠️ Not affiliated with, endorsed by, or sponsored by GoDaddy Inc.
+> ⚠️ Not affiliated with, endorsed by, or sponsored by GoDaddy Inc. The GoDaddy name and logo are trademarks of
+> GoDaddy Operating Company, LLC, used here only to identify the API this node talks to.
 
 ---
 
