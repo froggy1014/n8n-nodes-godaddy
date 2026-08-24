@@ -20,7 +20,21 @@ export const MOCKS: Record<string, unknown> = {
 				"renewalPrice": {
 					"currencyCode": "USD",
 					"value": 0
-				}
+				},
+				"firstTermPrice": {
+					"currencyCode": "USD",
+					"value": 0
+				},
+				"recommended": true,
+				"fees": [
+					{
+						"type": "string",
+						"fee": {
+							"currencyCode": "USD",
+							"value": 0
+						}
+					}
+				]
 			}
 		],
 		"error": {
@@ -66,7 +80,21 @@ export const MOCKS: Record<string, unknown> = {
 						"renewalPrice": {
 							"currencyCode": "USD",
 							"value": 0
-						}
+						},
+						"firstTermPrice": {
+							"currencyCode": "USD",
+							"value": 0
+						},
+						"recommended": true,
+						"fees": [
+							{
+								"type": "string",
+								"fee": {
+									"currencyCode": "USD",
+									"value": 0
+								}
+							}
+						]
 					}
 				],
 				"inventory": "REGISTRY"
@@ -170,6 +198,15 @@ export const MOCKS: Record<string, unknown> = {
 				"API_DPA"
 			],
 			"agreedAt": "string",
+			"acknowledgedFees": [
+				{
+					"type": "ONE_TIME_PREMIUM_DOMAIN_PURCHASE",
+					"fee": {
+						"value": 390000,
+						"currencyCode": "USD"
+					}
+				}
+			],
 			"agreedBy": {
 				"type": "string",
 				"principal": "shopper_123",
@@ -177,6 +214,19 @@ export const MOCKS: Record<string, unknown> = {
 				"ip": "203.0.113.7"
 			}
 		},
+		"price": {
+			"currencyCode": "USD",
+			"value": 0
+		},
+		"fees": [
+			{
+				"type": "string",
+				"fee": {
+					"currencyCode": "USD",
+					"value": 0
+				}
+			}
+		],
 		"status": "string",
 		"operationId": "00000000-0000-4000-8000-000000000000",
 		"expiresAt": "string",
@@ -227,7 +277,17 @@ export const MOCKS: Record<string, unknown> = {
 				"url": "https://www.godaddy.com/agreements/showdoc?pageid=reg_sa"
 			}
 		],
-		"irreversible": false
+		"irreversible": false,
+		"inventory": "REGISTRY",
+		"fees": [
+			{
+				"type": "string",
+				"fee": {
+					"currencyCode": "USD",
+					"value": 0
+				}
+			}
+		]
 	},
 	"registration.register": {
 		"registrationId": "00000000-0000-4000-8000-000000000000",
@@ -326,6 +386,15 @@ export const MOCKS: Record<string, unknown> = {
 				"API_DPA"
 			],
 			"agreedAt": "string",
+			"acknowledgedFees": [
+				{
+					"type": "ONE_TIME_PREMIUM_DOMAIN_PURCHASE",
+					"fee": {
+						"value": 390000,
+						"currencyCode": "USD"
+					}
+				}
+			],
 			"agreedBy": {
 				"type": "string",
 				"principal": "shopper_123",
@@ -333,6 +402,19 @@ export const MOCKS: Record<string, unknown> = {
 				"ip": "203.0.113.7"
 			}
 		},
+		"price": {
+			"currencyCode": "USD",
+			"value": 0
+		},
+		"fees": [
+			{
+				"type": "string",
+				"fee": {
+					"currencyCode": "USD",
+					"value": 0
+				}
+			}
+		],
 		"status": "string",
 		"operationId": "00000000-0000-4000-8000-000000000000",
 		"expiresAt": "string",

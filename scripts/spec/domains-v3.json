@@ -85,6 +85,29 @@
     },
     "example": "ISC_PARTNER_001"
    },
+   "pageToken": {
+    "name": "pageToken",
+    "in": "query",
+    "description": "Opaque cursor from the links[rel=next or rel=prev] href of the previous page. When present, the response begins immediately after the item that produced the token. Omit to start from the beginning of the collection.\n",
+    "required": false,
+    "schema": {
+     "type": "string"
+    },
+    "example": "eyJkb21haW4iOiJleGFtcGxlLmNvbSJ9"
+   },
+   "pageTokenDirection": {
+    "name": "pageTokenDirection",
+    "in": "query",
+    "description": "Optional token direction when `pageToken` is set; ignored otherwise.\n",
+    "required": false,
+    "schema": {
+     "type": "string",
+     "enum": [
+      "backward",
+      "forward"
+     ]
+    }
+   },
    "idempotencyKey": {
     "name": "Idempotency-Key",
     "in": "header",
@@ -277,7 +300,7 @@
     }
    },
    "409": {
-    "description": "Conflict — the request cannot be completed in the current state. Used for quote lifecycle errors (quote_expired, quote_mismatch, quote_consumed), domain state conflicts such as domain_already_exists, and immutable DNS records (dns_record_not_mutable) such as GoDaddy-managed SOA and NS records.\n",
+    "description": "Conflict — the request cannot be completed in the current state. Used for quote lifecycle errors (quote_expired, quote_consumed), domain state conflicts such as domain_already_exists, and immutable DNS records (dns_record_not_mutable) such as GoDaddy-managed SOA and NS records.\n",
     "headers": {
      "X-Request-Id": {
       "$ref": "#/components/headers/xRequestId"
@@ -292,7 +315,7 @@
     }
    },
    "422": {
-    "description": "Semantically invalid request — valid structure but violates a business rule, such as an ineligible contact, unsupported TLD, or non-renewable domain status.\n",
+    "description": "Semantically invalid request — valid structure but violates a business rule, such as an ineligible contact, unsupported TLD, non-renewable domain status, or quote_mismatch (e.g. iscCode or acknowledgedFees that do not match the locked quote).\n",
     "headers": {
      "X-Request-Id": {
       "$ref": "#/components/headers/xRequestId"
@@ -380,6 +403,9 @@
    "Error": {
     "$ref": "#/x-ext/21ae8c5"
    },
+   "Fee": {
+    "$ref": "#/x-ext/a12fb6c"
+   },
    "Registration": {
     "$ref": "#/x-ext/a83bac3"
    },
@@ -397,6 +423,12 @@
    },
    "TermPrice": {
     "$ref": "#/x-ext/50f74db"
+   },
+   "DomainCollection": {
+    "$ref": "#/x-ext/0dbf450"
+   },
+   "DomainLifecycleGroup": {
+    "$ref": "#/x-ext/847c074"
    }
   },
   "securitySchemes": {
@@ -531,6 +563,85 @@
            }
           }
          }
+        },
+        "examples": {
+         "suggestions": {
+          "summary": "Two suggestions with per-term pricing",
+          "value": {
+           "items": [
+            {
+             "domain": "sunrisebakery.com",
+             "inventory": "REGISTRY",
+             "prices": [
+              {
+               "term": "YEAR",
+               "period": 1,
+               "price": {
+                "currencyCode": "USD",
+                "value": 1199
+               },
+               "renewalPrice": {
+                "currencyCode": "USD",
+                "value": 2299
+               }
+              },
+              {
+               "term": "YEAR",
+               "period": 2,
+               "price": {
+                "currencyCode": "USD",
+                "value": 3098
+               },
+               "renewalPrice": {
+                "currencyCode": "USD",
+                "value": 4598
+               },
+               "firstTermPrice": {
+                "currencyCode": "USD",
+                "value": 799
+               },
+               "recommended": true
+              }
+             ]
+            },
+            {
+             "domain": "sunrisebakery.shop",
+             "inventory": "REGISTRY",
+             "prices": [
+              {
+               "term": "YEAR",
+               "period": 1,
+               "price": {
+                "currencyCode": "USD",
+                "value": 299
+               },
+               "renewalPrice": {
+                "currencyCode": "USD",
+                "value": 599
+               }
+              },
+              {
+               "term": "YEAR",
+               "period": 2,
+               "price": {
+                "currencyCode": "USD",
+                "value": 798
+               },
+               "renewalPrice": {
+                "currencyCode": "USD",
+                "value": 1198
+               },
+               "firstTermPrice": {
+                "currencyCode": "USD",
+                "value": 199
+               },
+               "recommended": true
+              }
+             ]
+            }
+           ]
+          }
+         }
         }
        }
       }
@@ -640,6 +751,10 @@
              "renewalPrice": {
               "currencyCode": "USD",
               "value": 4598
+             },
+             "firstTermPrice": {
+              "currencyCode": "USD",
+              "value": 799
              }
             },
             {
@@ -652,7 +767,12 @@
              "renewalPrice": {
               "currencyCode": "USD",
               "value": 6897
-             }
+             },
+             "firstTermPrice": {
+              "currencyCode": "USD",
+              "value": 499
+             },
+             "recommended": true
             },
             {
              "term": "YEAR",
@@ -664,6 +784,183 @@
              "renewalPrice": {
               "currencyCode": "USD",
               "value": 11495
+             },
+             "firstTermPrice": {
+              "currencyCode": "USD",
+              "value": 100
+             }
+            }
+           ]
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/400"
+     },
+     "401": {
+      "$ref": "#/components/responses/401"
+     },
+     "403": {
+      "$ref": "#/components/responses/403"
+     },
+     "422": {
+      "$ref": "#/components/responses/422"
+     },
+     "429": {
+      "$ref": "#/components/responses/429"
+     }
+    }
+   },
+   "post": {
+    "operationId": "checkAvailability",
+    "tags": [
+     "Discovery"
+    ],
+    "summary": "Check availability of one or more specific domains",
+    "description": "Batch controller for domain availability checking. Accepts 1–25 domain\nnames alongside optional check criteria (optimization mode, ISC pricing\ncode). Returns one Availability result per requested domain in input\norder inside `{ items: [...] }`. Domains that cannot be checked carry\nan `error` object on that item.\n\nFor a single domain, GET /check-availability (getDomainAvailability)\noffers the same check semantics and Availability result without a\nrequest body; the response is the lone item unwrapped.\n\nAvailability is best-effort indicative; the authoritative check is\nalways performed at quote time. This controller does not persist the\ncheck — there is no check identity or poll URL.\n",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/xRequestId"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AvailabilityCheckCriteria"
+       },
+       "examples": {
+        "defaultBehavior": {
+         "summary": "Omit optimizeFor — defaults to SPEED",
+         "value": {
+          "domains": [
+           "example.com",
+           "example.net"
+          ]
+         }
+        },
+        "speedCheck": {
+         "summary": "Check two domains using cached data",
+         "value": {
+          "domains": [
+           "example.com",
+           "example.net"
+          ],
+          "optimizeFor": "SPEED"
+         }
+        },
+        "accuracyCheck": {
+         "summary": "Live registry check with ISC pricing context",
+         "value": {
+          "domains": [
+           "example.com"
+          ],
+          "optimizeFor": "ACCURACY",
+          "iscCode": "ISC_PARTNER_001"
+         }
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Per-domain availability results in request order. Uncheckable items carry an error object.\n",
+      "headers": {
+       "X-Request-Id": {
+        "$ref": "#/components/headers/xRequestId"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "required": [
+          "items"
+         ],
+         "properties": {
+          "items": {
+           "type": "array",
+           "description": "Availability results in the same order as the domains array in the request body.\n",
+           "items": {
+            "$ref": "#/components/schemas/Availability"
+           }
+          }
+         }
+        },
+        "examples": {
+         "mixedResults": {
+          "summary": "One available domain and one uncheckable domain",
+          "value": {
+           "items": [
+            {
+             "domain": "example.com",
+             "available": true,
+             "definitive": false,
+             "inventory": "REGISTRY",
+             "prices": [
+              {
+               "term": "YEAR",
+               "period": 1,
+               "price": {
+                "currencyCode": "USD",
+                "value": 1999
+               },
+               "renewalPrice": {
+                "currencyCode": "USD",
+                "value": 1999
+               }
+              },
+              {
+               "term": "YEAR",
+               "period": 2,
+               "price": {
+                "currencyCode": "USD",
+                "value": 3098
+               },
+               "renewalPrice": {
+                "currencyCode": "USD",
+                "value": 4598
+               },
+               "firstTermPrice": {
+                "currencyCode": "USD",
+                "value": 799
+               }
+              },
+              {
+               "term": "YEAR",
+               "period": 3,
+               "price": {
+                "currencyCode": "USD",
+                "value": 4599
+               },
+               "renewalPrice": {
+                "currencyCode": "USD",
+                "value": 6897
+               },
+               "firstTermPrice": {
+                "currencyCode": "USD",
+                "value": 499
+               },
+               "recommended": true
+              }
+             ]
+            },
+            {
+             "domain": "invalid..com",
+             "error": {
+              "name": "MISMATCH_FORMAT",
+              "correlationId": "9f1c2e7a-4b3d-4e8f-a1c2-3d4e5f6a7b8c",
+              "message": "does not conform to the 'domain' format, based on pattern: /^[^.\\s]{1,63}(\\.[^.\\s]{1,63}){1,2}$/"
              }
             }
            ]
@@ -698,7 +995,7 @@
      "Registration Quotes"
     ],
     "summary": "Quote a single-domain registration (no commitment)",
-    "description": "Prices the registration, resolves contact and preference settings,\nreturns required legal agreements, and mints a single-use quoteToken\nwith a 10-minute TTL. Free and read-only; safe to call speculatively.\n\nWhen the domain is unavailable, `available: false` is returned with\nno quoteToken — this is a valid non-error response.\n\nWhen required contact fields are missing, a `422` is returned with\nfield-level details so the agent can collect the missing data and re-quote.\n\nMay pass `iscCode` to lock pricing at applicable rates;\nthe same value must be supplied on /registrations if provided here.\nThe `period` supplied here must be re-supplied on /registrations;\na mismatch returns `quote_mismatch`.\nIf `profile` or `profileId` is supplied here, the same value must be\nre-supplied on /registrations; a mismatch returns `quote_mismatch`.\n",
+    "description": "Prices the registration, resolves contact and preference settings,\nreturns required legal agreements, and mints a single-use quoteToken\nwith a 10-minute TTL. Free and read-only; safe to call speculatively.\n\nWhen the domain is unavailable, `available: false` is returned with\nno quoteToken — this is a valid non-error response.\n\nWhen required contact fields are missing, a `422` is returned with\nfield-level details so the agent can collect the missing data and re-quote.\n\nMay pass `iscCode` to lock pricing at applicable rates;\nthe same value must be supplied on /registrations if provided here.\nThe `period` supplied here must be re-supplied on /registrations;\na mismatch returns `quote_mismatch`.\nIf `profile` or `profileId` is supplied here, the same value must be\nre-supplied on /registrations; a mismatch returns `quote_mismatch`.\n\n**PREMIUM domains:** when the quoted domain has inventory `PREMIUM`,\nthe response includes a `fees` array containing a\n`ONE_TIME_PREMIUM_DOMAIN_PURCHASE` entry. The execute request must\necho this array verbatim in `consent.acknowledgedFees` to confirm\nthe customer accepted the specific charge before the irreversible\npurchase proceeds.\n",
     "parameters": [
      {
       "$ref": "#/components/parameters/xRequestId"
@@ -816,7 +1113,7 @@
      "Registrations"
     ],
     "summary": "Register a domain (requires quoteToken)",
-    "description": "Executes a previously quoted domain registration. **Irreversible once\naccepted; creates a charge.** Requires a valid unexpired quoteToken from\n`quoteDomainRegistration`, an `Idempotency-Key` header, and a consent\nrecord. The target domain and period are in the request body alongside\nthe quoteToken.\n\nBefore calling this endpoint, retrieve `requiredAgreements` from the\nquote response and review each agreement before submitting the registration. Each agreement\nincludes a `title` (display label) and optional `url` (full legal text).\nThe `consent.agreementTypes` array must contain the `agreementType` value\nfrom every item in `requiredAgreements`; a mismatch returns\n`INVALID_AGREEMENT_KEYS`.\n\nIdempotency takes precedence over the single-use check: retrying with\nthe same `Idempotency-Key` replays the original operation even after\nthe token is consumed.\n\nReturns a `Registration` entity. Poll `links[rel=self]`\n(`GET /registrations/{registrationId}`) until status is `COMPLETED` or\n`FAILED`. The `operationId` field is also provided for clients that\nprefer `GET /operations/{operationId}`; both resolve the same resource.\n\nPoll either until status is `COMPLETED` or `FAILED`. The operation is\nfire-and-forget; always poll at least once even if the server completed\nit synchronously.\n\nWhen `iscCode` was supplied at quote time, the same value must be\nprovided here or the request fails with `quote_mismatch`.\nWhen `period` was supplied at quote time, the same value must be\nprovided here or the request fails with `quote_mismatch`.\nWhen `profile` or `profileId` was supplied at quote time, the same\nvalue must be provided here or the request fails with `quote_mismatch`.\n",
+    "description": "Executes a previously quoted domain registration. **Irreversible once\naccepted; creates a charge.** Requires a valid unexpired quoteToken from\n`quoteDomainRegistration`, an `Idempotency-Key` header, and a consent\nrecord. The target domain and period are in the request body alongside\nthe quoteToken.\n\nBefore calling this endpoint, retrieve `requiredAgreements` from the\nquote response and review each agreement before submitting the registration. Each agreement\nincludes a `title` (display label) and optional `url` (full legal text).\nThe `consent.agreementTypes` array must contain the `agreementType` value\nfrom every item in `requiredAgreements`; a mismatch returns\n`INVALID_AGREEMENT_KEYS`.\n\nIdempotency takes precedence over the single-use check: retrying with\nthe same `Idempotency-Key` replays the original operation even after\nthe token is consumed.\n\nReturns a `Registration` entity. Poll `links[rel=self]`\n(`GET /registrations/{registrationId}`) until status is `COMPLETED` or\n`FAILED`. The `operationId` field is also provided for clients that\nprefer `GET /operations/{operationId}`; both resolve the same resource.\n\nPoll either until status is `COMPLETED` or `FAILED`. The operation is\nfire-and-forget; always poll at least once even if the server completed\nit synchronously.\n\nWhen `iscCode` was supplied at quote time, the same value must be\nprovided here or the request fails with `422 quote_mismatch`.\nWhen `period` was supplied at quote time, the same value must be\nprovided here or the request fails with `422 quote_mismatch`.\nWhen `profile` or `profileId` was supplied at quote time, the same\nvalue must be provided here or the request fails with `422 quote_mismatch`.\n\n**PREMIUM domains:** when the quote's `fees` array is non-empty\n(inventory `PREMIUM`), the execute request must include\n`consent.acknowledgedFees` containing the same fees verbatim —\nsame types, amounts, and currencies. This confirms the customer\nexplicitly saw and accepted the specific charge before the\nirreversible purchase is executed.\n\n- `acknowledgedFees` absent when fees exist → `422` with error\n  name `consent_fees_required` (conditionally required by the quote; the\n  constraint spans two requests and cannot be expressed in the\n  schema).\n- `acknowledgedFees` present but type or amount does not match\n  the locked quote → `422` with error name `quote_mismatch`.\n",
     "parameters": [
      {
       "$ref": "#/components/parameters/xRequestId"
@@ -837,7 +1134,7 @@
        },
        "examples": {
         "withToken": {
-         "summary": "Execute with quoteToken and direct consent",
+         "summary": "Standard REGISTRY registration with quoteToken",
          "value": {
           "domain": "example.com",
           "period": 1,
@@ -847,6 +1144,29 @@
             "API_DPA"
            ],
            "agreedAt": "2026-06-12T10:02:00Z"
+          }
+         }
+        },
+        "withPremiumToken": {
+         "summary": "PREMIUM (Afternic fast-transfer) registration with fee acknowledgment",
+         "value": {
+          "domain": "examplepremium.com",
+          "period": 1,
+          "quoteToken": "9a1b2c3d-4e5f-6789-abcd-ef0123456789",
+          "consent": {
+           "agreementTypes": [
+            "API_DPA"
+           ],
+           "agreedAt": "2026-06-12T10:02:00Z",
+           "acknowledgedFees": [
+            {
+             "type": "ONE_TIME_PREMIUM_DOMAIN_PURCHASE",
+             "fee": {
+              "value": 390000,
+              "currencyCode": "USD"
+             }
+            }
+           ]
           }
          }
         }
@@ -985,6 +1305,192 @@
      },
      "404": {
       "$ref": "#/components/responses/404"
+     },
+     "429": {
+      "$ref": "#/components/responses/429"
+     }
+    }
+   }
+  },
+  "/domain-names": {
+   "get": {
+    "operationId": "listDomains",
+    "tags": [
+     "Domains"
+    ],
+    "summary": "List registered domains",
+    "description": "Returns a paginated collection of domain names owned by the authenticated account. Supports filtering by statuses and cursor-based pagination. The statuses and lifecycleGroups parameters are mutually exclusive; supplying both returns 400 Bad Request. An unrecognized value for statuses or lifecycleGroups returns 400 Bad Request.\n",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/xRequestId"
+     },
+     {
+      "$ref": "#/components/parameters/pageToken"
+     },
+     {
+      "$ref": "#/components/parameters/pageTokenDirection"
+     },
+     {
+      "name": "pageSize",
+      "in": "query",
+      "required": false,
+      "description": "Maximum number of domains in the response. Defaults to 100 when omitted. Offset-based \"page\" parameter is not supported, only cursor-based \"pageToken\".\n",
+      "schema": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 200,
+       "default": 100
+      }
+     },
+     {
+      "name": "statuses",
+      "in": "query",
+      "required": false,
+      "description": "Filter results to domains with one or more lifecycle statuses. Supply multiple values as a single comma-separated list, e.g. `?statuses=ACTIVE,EXPIRED`. Multiple values are combined with logical OR — returns domains matching ANY of the specified statuses. See DomainStatus for accepted values (ACTIVE, EXPIRED, PENDING_REGISTRATION, etc.). Cannot be combined with the lifecycleGroups parameter. Use this for precise filtering on specific known status values; for coarse lifecycle phases, consider lifecycleGroups.\n",
+      "style": "form",
+      "explode": false,
+      "schema": {
+       "type": "array",
+       "maxItems": 50,
+       "items": {
+        "$ref": "#/x-ext/b594312"
+       }
+      },
+      "example": [
+       "ACTIVE",
+       "EXPIRED"
+      ]
+     },
+     {
+      "name": "lifecycleGroups",
+      "in": "query",
+      "required": false,
+      "description": "Filter results to domains belonging to one or more status groups. Supply multiple values as a single comma-separated list, e.g. `?lifecycleGroups=REGISTERED,PENDING`. Multiple values are combined with logical OR. Cannot be combined with the statuses parameter. Use this for coarse lifecycle phases that remain stable as new statuses are added; for precise filtering, use statuses.\n",
+      "style": "form",
+      "explode": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "$ref": "#/x-ext/847c074"
+       }
+      },
+      "example": [
+       "REGISTERED",
+       "PENDING"
+      ]
+     },
+     {
+      "name": "updatedAfter",
+      "in": "query",
+      "required": false,
+      "description": "Return only domains last updated after this timestamp (exclusive). Must be a valid RFC 3339 date-time.\n",
+      "schema": {
+       "type": "string",
+       "format": "date-time"
+      },
+      "example": "2026-01-01T00:00:00Z"
+     },
+     {
+      "name": "expiresBefore",
+      "in": "query",
+      "required": false,
+      "description": "Return only domains whose registration expires before this timestamp (exclusive). Must be a valid RFC 3339 date-time.\n",
+      "schema": {
+       "type": "string",
+       "format": "date-time"
+      },
+      "example": "2027-01-01T00:00:00Z"
+     }
+    ],
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Paginated list of domains owned by the account.",
+      "headers": {
+       "X-Request-Id": {
+        "$ref": "#/components/headers/xRequestId"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DomainCollection"
+        },
+        "examples": {
+         "paginated": {
+          "summary": "First page of active domains with totals",
+          "value": {
+           "items": [
+            {
+             "domain": "example.com",
+             "status": "ACTIVE",
+             "expiresAt": "2027-06-12T10:02:10Z",
+             "createdAt": "2026-06-12T10:02:10Z",
+             "autoRenew": true,
+             "privacy": false,
+             "transferLock": true,
+             "nameServers": [
+              "ns01.domaincontrol.com",
+              "ns02.domaincontrol.com"
+             ],
+             "links": [
+              {
+               "rel": "self",
+               "href": "/v3/domains/domain-names/example.com"
+              }
+             ]
+            },
+            {
+             "domain": "mysite.net",
+             "status": "ACTIVE",
+             "expiresAt": "2027-08-01T00:00:00Z",
+             "createdAt": "2025-08-01T00:00:00Z",
+             "autoRenew": false,
+             "privacy": true,
+             "transferLock": true,
+             "nameServers": [
+              "ns01.domaincontrol.com",
+              "ns02.domaincontrol.com"
+             ],
+             "links": [
+              {
+               "rel": "self",
+               "href": "/v3/domains/domain-names/mysite.net"
+              }
+             ]
+            }
+           ],
+           "links": [
+            {
+             "rel": "self",
+             "href": "/v3/domains/domain-names?statuses=ACTIVE&pageSize=25"
+            },
+            {
+             "rel": "next",
+             "href": "/v3/domains/domain-names?statuses=ACTIVE&pageSize=25&pageToken=eyJkb21haW4iOiJteXNpdGUubmV0In0"
+            }
+           ]
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/400"
+     },
+     "401": {
+      "$ref": "#/components/responses/401"
+     },
+     "403": {
+      "$ref": "#/components/responses/403"
+     },
+     "422": {
+      "$ref": "#/components/responses/422"
      },
      "429": {
       "$ref": "#/components/responses/429"
@@ -1357,6 +1863,89 @@
    }
   },
   "/zones/{zone}/dns-records/{recordId}": {
+   "put": {
+    "operationId": "replaceDNSRecord",
+    "tags": [
+     "Records"
+    ],
+    "summary": "Replace a DNS record",
+    "description": "Fully replaces an existing DNS resource record identified by\nrecordId within the zone. All writable fields (name, type, data,\nttl) must be supplied; partial updates are not supported on this\nendpoint. Changes are applied synchronously.\n\nGoDaddy-managed system records (SOA and NS) are read-only. When\nrecordId refers to such a record, the request fails with\n`409 Conflict` — the record exists but cannot be modified.\n",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/xRequestId"
+     },
+     {
+      "$ref": "#/components/parameters/zonePath"
+     },
+     {
+      "$ref": "#/components/parameters/recordId"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DNSRecord"
+       },
+       "examples": {
+        "apexARecord": {
+         "summary": "Replace apex A record",
+         "value": {
+          "name": "@",
+          "type": "A",
+          "data": "192.0.2.1",
+          "ttl": 3600
+         }
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "DNS record replaced.",
+      "headers": {
+       "X-Request-Id": {
+        "$ref": "#/components/headers/xRequestId"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DNSRecord"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/400"
+     },
+     "401": {
+      "$ref": "#/components/responses/401"
+     },
+     "403": {
+      "$ref": "#/components/responses/403"
+     },
+     "404": {
+      "$ref": "#/components/responses/404"
+     },
+     "409": {
+      "$ref": "#/components/responses/409"
+     },
+     "422": {
+      "$ref": "#/components/responses/422"
+     },
+     "429": {
+      "$ref": "#/components/responses/429"
+     }
+    }
+   },
    "delete": {
     "operationId": "deleteDNSRecord",
     "tags": [
@@ -1523,6 +2112,8 @@
   "f7542cf": "enums/Term.yaml",
   "18b18ae": "common-types/v1/schemas/yaml/simple-money.yaml",
   "0163f63": "common-types/v1/schemas/yaml/currency-code.yaml",
+  "a12fb6c": "models/Fee.yaml",
+  "22cbd6e": "enums/FeeType.yaml",
   "77ae6b4": "models/AvailabilityCheckCriteria.yaml",
   "ae5973b": "enums/OptimizationTarget.yaml",
   "fd3a330": "models/Consent.yaml",
@@ -1552,6 +2143,8 @@
   "51108fa": "models/ResolvedSettings.yaml",
   "a114951": "enums/ContactSource.yaml",
   "a4552e9": "models/Suggestion.yaml",
+  "0dbf450": "models/DomainCollection.yaml",
+  "847c074": "enums/DomainLifecycleGroup.yaml",
   "6d77c8e": "enums/SuggestionSource.yaml"
  },
  "x-ext": {
@@ -1769,9 +2362,46 @@
     "value"
    ]
   },
+  "22cbd6e": {
+   "title": "Fee Type",
+   "description": "The type of a fee charged at the time of purchase. ONE_TIME_PREMIUM_DOMAIN_PURCHASE — one-time acquisition cost charged by the aftermarket marketplace when purchasing a premium domain.\n",
+   "type": "string"
+  },
+  "a12fb6c": {
+   "title": "Fee",
+   "description": "Fees charged at the time of purchase, separate from the registration price. The type identifies the nature of the charge.\n",
+   "type": "object",
+   "required": [
+    "type",
+    "fee"
+   ],
+   "properties": {
+    "type": {
+     "allOf": [
+      {
+       "$ref": "#/x-ext/22cbd6e"
+      },
+      {
+       "description": "Identifies the nature of this charge. Determines how the fee is categorized in pricing breakdowns and receipts.\n",
+       "example": "ONE_TIME_PREMIUM_DOMAIN_PURCHASE"
+      }
+     ]
+    },
+    "fee": {
+     "allOf": [
+      {
+       "$ref": "#/x-ext/18b18ae"
+      },
+      {
+       "description": "The monetary amount of this fee."
+      }
+     ]
+    }
+   }
+  },
   "50f74db": {
    "title": "Term Price",
-   "description": "Pricing for a single registration term (period and unit combination).",
+   "description": "Pricing for a single registration term (period and unit combination). A term is self-contained: the full cost of choosing it is price plus all fees listed here.\n",
    "type": "object",
    "required": [
     "term",
@@ -1815,6 +2445,26 @@
        "description": "Renewal price for this term and period. Absent when renewal pricing is unavailable or identical to the registration price.\n"
       }
      ]
+    },
+    "firstTermPrice": {
+     "$ref": "#/x-ext/18b18ae",
+     "description": "Discounted price of only the first term unit within this multi-unit period. Typically omitted when period is 1 (where it equals price). Present when a first-term-only promotion applies to a multi-unit period.\n",
+     "example": {
+      "currencyCode": "USD",
+      "value": 1199
+     }
+    },
+    "recommended": {
+     "type": "boolean",
+     "description": "When true, this term is the best-value option based on active discounts or promotions. At most one entry in the prices array carries this flag. Absent (not false) when no recommendation applies.\n",
+     "example": true
+    },
+    "fees": {
+     "type": "array",
+     "description": "Fees charged at the time of purchase for this term, in addition to price. Present when the domain incurs purchase fees beyond the base registration cost. The full cost of choosing this term is price plus these fees.\n",
+     "items": {
+      "$ref": "#/x-ext/a12fb6c"
+     }
     }
    }
   },
@@ -1894,11 +2544,11 @@
     "domains": {
      "type": "array",
      "minItems": 1,
-     "maxItems": 50,
+     "maxItems": 25,
      "items": {
       "type": "string"
      },
-     "description": "List of 1–50 domain names to check, in punycode A-label form for IDNs.\n",
+     "description": "List of 1–25 domain names to check, in punycode A-label form for IDNs.\n",
      "example": [
       "example.com",
       "example.net"
@@ -1975,7 +2625,7 @@
   },
   "fd3a330": {
    "title": "Consent",
-   "description": "Customer consent record for a domain operation, capturing which legal agreements were accepted, when, and by whom. On execute, the caller supplies agreementTypes and agreedAt. The server derives agreedBy from the authenticated request context (OAuth identity, X-Shopper-Id, client IP, and transmission channel).\n",
+   "description": "Customer consent record for a domain operation, capturing which legal agreements were accepted, which fees were acknowledged, when, and by whom. On execute, the caller supplies agreementTypes, agreedAt, and (when the quote carries fees) acknowledgedFees. The server derives agreedBy from the authenticated request context (OAuth identity, X-Shopper-Id, client IP, and transmission channel).\n",
    "type": "object",
    "required": [
     "agreementTypes",
@@ -2003,6 +2653,23 @@
       }
      ]
     },
+    "acknowledgedFees": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/x-ext/a12fb6c"
+     },
+     "description": "Fees the customer explicitly acknowledged before executing the purchase.\nWhen the preceding quote's `fees` array is non-empty, this field must be present and contain the same entries verbatim (same types, amounts, and currencies). The server validates this against the locked quote token; a mismatch is rejected with `422 quote_mismatch`. This field is not in `required` because the obligation is conditional on quote state and cannot be expressed as a schema constraint — its absence is enforced at the API layer, not by validation tooling.\nContrast with `Registration.fees` (read-only): that field records what the server charged; this field records what the customer acknowledged. Both share the Fee type.\nOmit when the quote carries no purchase fees (standard REGISTRY registration).\n",
+     "example": [
+      {
+       "type": "ONE_TIME_PREMIUM_DOMAIN_PURCHASE",
+       "fee": {
+        "value": 390000,
+        "currencyCode": "USD"
+       }
+      }
+     ]
+    },
     "agreedBy": {
      "allOf": [
       {
@@ -2018,7 +2685,7 @@
   },
   "0f0d62a": {
    "title": "DNS Record Type",
-   "description": "The DNS resource record type. A — IPv4 address record. AAAA — IPv6 address record. CNAME — canonical name alias record; not permitted at the zone apex. MX — mail exchange routing record. TXT — arbitrary text record, used for SPF, DKIM, and domain verification. NS — authoritative name server delegation record. SRV — service locator record. SOA — start of authority record. CAA — certification authority authorization record. ALIAS — GoDaddy-specific apex-safe CNAME-like record.\n",
+   "description": "The DNS resource record type. A — IPv4 address record. AAAA — IPv6 address record. CNAME — canonical name alias record; not permitted at the zone apex. MX — mail exchange routing record. TXT — arbitrary text record, used for SPF, DKIM, and domain verification. NS — authoritative name server delegation record. SRV — service locator record. SOA — start of authority record. CAA — certification authority authorization record.\n",
    "type": "string",
    "enum": [
     "A",
@@ -2029,8 +2696,7 @@
     "NS",
     "SRV",
     "SOA",
-    "CAA",
-    "ALIAS"
+    "CAA"
    ]
   },
   "b820fe6": {
@@ -2788,6 +3454,25 @@
       }
      ]
     },
+    "price": {
+     "allOf": [
+      {
+       "$ref": "#/x-ext/18b18ae"
+      },
+      {
+       "description": "The locked registration price for the quoted period. Held for the duration of the quoteToken's TTL. Total amount charged on execute is this price plus any fees on this registration.\n",
+       "readOnly": true
+      }
+     ]
+    },
+    "fees": {
+     "type": "array",
+     "description": "Fees charged at the time of purchase, in addition to the registration price. Present when purchase fees were incurred. Same fees as RegistrationQuote.fees (the selected term's TermPrice.fees) from the preceding quote.\n",
+     "items": {
+      "$ref": "#/x-ext/a12fb6c"
+     },
+     "readOnly": true
+    },
     "status": {
      "allOf": [
       {
@@ -2965,7 +3650,7 @@
        "$ref": "#/x-ext/18b18ae"
       },
       {
-       "description": "The locked registration price for the quoted period. Held for the duration of the quoteToken's TTL. Represents the total amount that will be charged on execute.\n"
+       "description": "The locked registration price for the quoted period. Held for the duration of the quoteToken's TTL. Total amount charged on execute is this price plus any fees on this quote.\n"
       }
      ]
     },
@@ -3007,6 +3692,24 @@
      "type": "boolean",
      "description": "Whether executing this quote is irreversible once accepted. Use to calibrate the explicitness of any confirmation step presented before execute.\n",
      "example": false
+    },
+    "inventory": {
+     "allOf": [
+      {
+       "$ref": "#/x-ext/d7ca784"
+      },
+      {
+       "description": "The inventory type of the quoted domain. Present when available is true.\n",
+       "readOnly": true
+      }
+     ]
+    },
+    "fees": {
+     "type": "array",
+     "description": "Fees charged at the time of purchase, in addition to the registration price. Present when the domain incurs purchase fees beyond the base registration cost.\nThese are the same fees as TermPrice.fees for the selected term (this quote's period) — not a separate term-independent fee list and not additional to term-level fees. Execute cost is price plus this array. Mirrored on Registration.fees after execute.\n",
+     "items": {
+      "$ref": "#/x-ext/a12fb6c"
+     }
     }
    }
   },
@@ -3042,6 +3745,43 @@
      ]
     }
    }
+  },
+  "0dbf450": {
+   "title": "DomainCollection",
+   "description": "A paginated collection of registered domains owned by the authenticated account. Supports filtering by status and cursor-based pagination.\n",
+   "type": "object",
+   "required": [
+    "items",
+    "links"
+   ],
+   "properties": {
+    "items": {
+     "type": "array",
+     "description": "Domains for the current page.",
+     "items": {
+      "$ref": "#/x-ext/7244d8c"
+     }
+    },
+    "links": {
+     "type": "array",
+     "items": {
+      "$ref": "#/x-ext/590647a"
+     },
+     "description": "HATEOAS pagination links. May include rel=self (current page),  rel=prev is present when more items are available before the current page. and rel=next is present when more items are available beyond the current page.\n",
+     "readOnly": true
+    }
+   }
+  },
+  "847c074": {
+   "title": "Domain Lifecycle Group",
+   "description": "A logical grouping of domain lifecycle statuses for filtering purposes. PENDING — domain setup is in progress (e.g. PENDING_REGISTRATION). REGISTERED — domain is actively registered and operational (e.g. ACTIVE, PARKED). PENDING_TERMINAL — domain is approaching a terminal state (e.g. PENDING_TRANSFER, EXPIRED). TERMINAL — domain has reached a terminal state and is no longer manageable (e.g. CANCELLED, DELETED_REDEEMABLE, TRANSFERRED, REPOSSESSED).\n",
+   "type": "string",
+   "examples": [
+    "PENDING",
+    "REGISTERED",
+    "PENDING_TERMINAL",
+    "TERMINAL"
+   ]
   },
   "6d77c8e": {
    "title": "Suggestion Source",

@@ -90,10 +90,6 @@ export const dnsRecordFields: INodeProperties[] = [
 				value: "AAAA",
 			},
 			{
-				name: "ALIAS",
-				value: "ALIAS",
-			},
-			{
 				name: "CAA",
 				value: "CAA",
 			},
@@ -123,7 +119,7 @@ export const dnsRecordFields: INodeProperties[] = [
 			},
 		],
 		default: "A",
-		description: "The DNS resource record type. A — IPv4 address record. AAAA — IPv6 address record. CNAME — canonical name alias record; not permitted at the zone apex. MX — mail exchange routing record. TXT — arbitrary text record, used for SPF, DKIM, and domain verification. NS — authoritative name server delegation record. SRV — service locator record. SOA — start of authority record. CAA — certification authority authorization record. ALIAS — GoDaddy-specific apex-safe CNAME-like record.",
+		description: "The DNS resource record type. A — IPv4 address record. AAAA — IPv6 address record. CNAME — canonical name alias record; not permitted at the zone apex. MX — mail exchange routing record. TXT — arbitrary text record, used for SPF, DKIM, and domain verification. NS — authoritative name server delegation record. SRV — service locator record. SOA — start of authority record. CAA — certification authority authorization record.",
 		required: true,
 		displayOptions: {
 			show: {
@@ -358,10 +354,6 @@ export const dnsRecordFields: INodeProperties[] = [
 					{
 						name: "AAAA",
 						value: "AAAA",
-					},
-					{
-						name: "ALIAS",
-						value: "ALIAS",
 					},
 					{
 						name: "CAA",

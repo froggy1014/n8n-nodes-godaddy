@@ -212,6 +212,13 @@ export const REGISTRY: Record<string, RegistryEntry> = {
 				json: true,
 			},
 			{
+				api: "price",
+				param: "price",
+				in: "body",
+				required: false,
+				json: true,
+			},
+			{
 				api: "status",
 				param: "status",
 				in: "body",
