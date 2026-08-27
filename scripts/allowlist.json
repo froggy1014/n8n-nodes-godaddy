@@ -3,6 +3,7 @@
 		"displayName": "Discovery",
 		"operations": {
 			"checkAvailability": { "operationId": "getDomainAvailability", "name": "Check Availability", "action": "Check availability of a domain" },
+			"checkAvailabilityBulk": { "operationId": "checkAvailability", "name": "Check Availability (Bulk)", "action": "Check availability of several domains at once" },
 			"suggest": { "operationId": "suggestDomains", "name": "Suggest", "action": "Suggest available domains" }
 		}
 	},
@@ -18,6 +19,7 @@
 		"displayName": "Domain",
 		"operations": {
 			"get": { "operationId": "getDomain", "name": "Get", "action": "Get a registered domain" },
+			"list": { "operationId": "listDomains", "name": "List", "action": "List registered domains" },
 			"updateNameservers": { "operationId": "updateNameservers", "name": "Update Nameservers", "action": "Replace the nameservers for a domain" }
 		}
 	},
@@ -26,7 +28,8 @@
 		"operations": {
 			"create": { "operationId": "createDNSRecord", "name": "Create", "action": "Create a DNS record" },
 			"delete": { "operationId": "deleteDNSRecord", "name": "Delete", "action": "Delete a DNS record" },
-			"list": { "operationId": "listDNSRecords", "name": "List", "action": "List DNS records in a zone" }
+			"list": { "operationId": "listDNSRecords", "name": "List", "action": "List DNS records in a zone" },
+			"update": { "operationId": "replaceDNSRecord", "name": "Update", "action": "Replace a DNS record" }
 		}
 	},
 	"operation": {
