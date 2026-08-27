@@ -186,7 +186,7 @@ export const registrationFields: INodeProperties[] = [
 		name: "consent",
 		type: "json",
 		default: "{}",
-		description: "Customer consent record for a domain operation, capturing which legal agreements were accepted, when, and by whom. On execute, the caller supplies agreementTypes and agreedAt. The server derives agreedBy from the authenticated request context (OAuth identity, X-Shopper-ID, client IP, and transmission channel).",
+		description: "Customer consent record for a domain operation, capturing which legal agreements were accepted, which fees were acknowledged, when, and by whom. On execute, the caller supplies agreementTypes, agreedAt, and (when the quote carries fees) acknowledgedFees. The server derives agreedBy from the authenticated request context (OAuth identity, X-Shopper-ID, client IP, and transmission channel).",
 		required: true,
 		displayOptions: {
 			show: {
@@ -269,6 +269,13 @@ export const registrationFields: INodeProperties[] = [
 				type: "number",
 				default: 1,
 				description: "Registration period in years. Must match the period in the quote.",
+			},
+			{
+				displayName: "Price",
+				name: "price",
+				type: "json",
+				default: "{}",
+				description: "The currency and amount for a financial transaction, such as a balance or payment due. Use for value representations with default transactable-value precision.",
 			},
 			{
 				displayName: "Profile",
