@@ -24,6 +24,12 @@ export const discoveryOperations: INodeProperties = {
 			description: "Check availability of a single domain",
 		},
 		{
+			name: "Check Availability (Bulk)",
+			value: "checkAvailabilityBulk",
+			action: "Check availability of several domains at once",
+			description: "Check availability of one or more specific domains",
+		},
+		{
 			name: "Suggest",
 			value: "suggest",
 			action: "Suggest available domains",
@@ -92,6 +98,67 @@ export const discoveryFields: INodeProperties[] = [
 				],
 				default: "SPEED",
 				description: "Optional. When omitted, defaults to SPEED. Availability is always re-verified authoritatively at quote time regardless of this setting.",
+			},
+		],
+	},
+	{
+		displayName: "Domains",
+		name: "domains",
+		type: "json",
+		default: "[]",
+		description: "List of 1–25 domain names to check, in punycode A-label form for IDNs",
+		required: true,
+		displayOptions: {
+			show: {
+				resource: [
+					"discovery",
+				],
+				operation: [
+					"checkAvailabilityBulk",
+				],
+			},
+		},
+	},
+	{
+		displayName: "Additional Fields",
+		name: "additionalFields",
+		type: "collection",
+		placeholder: "Add Field",
+		default: {},
+		displayOptions: {
+			show: {
+				resource: [
+					"discovery",
+				],
+				operation: [
+					"checkAvailabilityBulk",
+				],
+			},
+		},
+		options: [
+			{
+				displayName: "Isc Code",
+				name: "iscCode",
+				type: "string",
+				default: "",
+				description: "Reseller ISC (International Shopper Code) for pricing context. When provided, the indicative prices in the results reflect the applicable reseller rates for this ISC.",
+			},
+			{
+				displayName: "Optimize For",
+				name: "optimizeFor",
+				type: "options",
+				options: [
+					{
+						name: "ACCURACY",
+						value: "ACCURACY",
+					},
+					{
+						name: "SPEED",
+						value: "SPEED",
+					},
+				],
+				default: "SPEED",
+				description: "How an availability check should prioritize speed vs. authoritative accuracy. SPEED — use cached zone data for a fast response (may be slightly stale). ACCURACY — perform a live registry check for authoritative availability (higher latency).",
 			},
 		],
 	},

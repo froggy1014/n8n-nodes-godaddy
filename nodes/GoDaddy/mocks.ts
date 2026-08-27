@@ -65,6 +65,72 @@ export const MOCKS: Record<string, unknown> = {
 			]
 		}
 	},
+	"discovery.checkAvailabilityBulk": {
+		"items": [
+			{
+				"domain": "example.com",
+				"unicodeDomain": "münchen.de",
+				"available": false,
+				"definitive": false,
+				"inventory": "REGISTRY",
+				"prices": [
+					{
+						"term": "YEAR",
+						"period": 1,
+						"price": {
+							"currencyCode": "USD",
+							"value": 0
+						},
+						"renewalPrice": {
+							"currencyCode": "USD",
+							"value": 0
+						},
+						"firstTermPrice": {
+							"currencyCode": "USD",
+							"value": 0
+						},
+						"recommended": true,
+						"fees": [
+							{
+								"type": "string",
+								"fee": {
+									"currencyCode": "USD",
+									"value": 0
+								}
+							}
+						]
+					}
+				],
+				"error": {
+					"name": "example",
+					"correlationId": "string",
+					"message": "string",
+					"informationLink": "string",
+					"details": [
+						{
+							"field": "string",
+							"value": "string",
+							"location": "string",
+							"issue": "string",
+							"description": "string"
+						}
+					],
+					"links": [
+						{
+							"href": "https://api.godaddy.com/v3/domains/example",
+							"rel": "string",
+							"title": "string",
+							"targetMediaType": "string",
+							"targetSchema": "string",
+							"method": "string",
+							"submissionMediaType": "string",
+							"submissionSchema": "string"
+						}
+					]
+				}
+			}
+		]
+	},
 	"discovery.suggest": {
 		"items": [
 			{
@@ -460,6 +526,49 @@ export const MOCKS: Record<string, unknown> = {
 			}
 		]
 	},
+	"domain.list": {
+		"items": [
+			{
+				"domain": "example.com",
+				"idnDomain": "例え.jp",
+				"status": "ACTIVE",
+				"expiresAt": "string",
+				"createdAt": "string",
+				"renewBy": "string",
+				"updatedAt": "string",
+				"autoRenew": false,
+				"privacy": false,
+				"transferLock": false,
+				"nameServers": [
+					"ns1.domaincontrol.com"
+				],
+				"links": [
+					{
+						"href": "https://api.godaddy.com/v3/domains/example",
+						"rel": "string",
+						"title": "string",
+						"targetMediaType": "string",
+						"targetSchema": "string",
+						"method": "string",
+						"submissionMediaType": "string",
+						"submissionSchema": "string"
+					}
+				]
+			}
+		],
+		"links": [
+			{
+				"href": "https://api.godaddy.com/v3/domains/example",
+				"rel": "string",
+				"title": "string",
+				"targetMediaType": "string",
+				"targetSchema": "string",
+				"method": "string",
+				"submissionMediaType": "string",
+				"submissionSchema": "string"
+			}
+		]
+	},
 	"domain.updateNameservers": {
 		"operationId": "00000000-0000-4000-8000-000000000000",
 		"type": "string",
@@ -560,6 +669,20 @@ export const MOCKS: Record<string, unknown> = {
 				"submissionSchema": "string"
 			}
 		]
+	},
+	"dnsRecord.update": {
+		"recordId": "rec_a1b2c3d4",
+		"name": "www",
+		"type": "A",
+		"data": "93.184.216.34",
+		"ttl": 3600,
+		"priority": 0,
+		"service": "string",
+		"port": 0,
+		"weight": 0,
+		"protocol": "string",
+		"flag": 0,
+		"tag": "string"
 	},
 	"operation.get": {
 		"operationId": "00000000-0000-4000-8000-000000000000",

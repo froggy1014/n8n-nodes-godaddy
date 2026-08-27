@@ -35,6 +35,12 @@ export const dnsRecordOperations: INodeProperties = {
 			action: "List DNS records in a zone",
 			description: "List DNS records in a zone",
 		},
+		{
+			name: "Update",
+			value: "update",
+			action: "Replace a DNS record",
+			description: "Replace a DNS record",
+		},
 	],
 	default: "create",
 };
@@ -386,6 +392,220 @@ export const dnsRecordFields: INodeProperties[] = [
 				],
 				default: "A",
 				description: "Filter results to records of this DNS type",
+			},
+		],
+	},
+	{
+		displayName: "Zone",
+		name: "zone",
+		type: "string",
+		default: "",
+		description: "The domain name in punycode A-label form (for example, example.com). For IDNs, use the punycode representation.",
+		required: true,
+		displayOptions: {
+			show: {
+				resource: [
+					"dnsRecord",
+				],
+				operation: [
+					"update",
+				],
+			},
+		},
+	},
+	{
+		displayName: "Record ID",
+		name: "recordId",
+		type: "string",
+		default: "",
+		description: "Server-assigned DNS record identifier within the zone",
+		required: true,
+		displayOptions: {
+			show: {
+				resource: [
+					"dnsRecord",
+				],
+				operation: [
+					"update",
+				],
+			},
+		},
+	},
+	{
+		displayName: "Name",
+		name: "name",
+		type: "string",
+		default: "",
+		description: "The DNS record name relative to the zone apex. Use @ to represent the zone apex itself (e.g. the bare domain example.com).",
+		required: true,
+		displayOptions: {
+			show: {
+				resource: [
+					"dnsRecord",
+				],
+				operation: [
+					"update",
+				],
+			},
+		},
+	},
+	{
+		displayName: "Type",
+		name: "type",
+		type: "options",
+		options: [
+			{
+				name: "A",
+				value: "A",
+			},
+			{
+				name: "AAAA",
+				value: "AAAA",
+			},
+			{
+				name: "CAA",
+				value: "CAA",
+			},
+			{
+				name: "CNAME",
+				value: "CNAME",
+			},
+			{
+				name: "MX",
+				value: "MX",
+			},
+			{
+				name: "NS",
+				value: "NS",
+			},
+			{
+				name: "SOA",
+				value: "SOA",
+			},
+			{
+				name: "SRV",
+				value: "SRV",
+			},
+			{
+				name: "TXT",
+				value: "TXT",
+			},
+		],
+		default: "A",
+		description: "The DNS resource record type. A — IPv4 address record. AAAA — IPv6 address record. CNAME — canonical name alias record; not permitted at the zone apex. MX — mail exchange routing record. TXT — arbitrary text record, used for SPF, DKIM, and domain verification. NS — authoritative name server delegation record. SRV — service locator record. SOA — start of authority record. CAA — certification authority authorization record.",
+		required: true,
+		displayOptions: {
+			show: {
+				resource: [
+					"dnsRecord",
+				],
+				operation: [
+					"update",
+				],
+			},
+		},
+	},
+	{
+		displayName: "Data",
+		name: "data",
+		type: "string",
+		default: "",
+		description: "The record value. Format is type-specific — for example, an IPv4 address for A records, or a hostname for CNAME and MX records.",
+		required: true,
+		displayOptions: {
+			show: {
+				resource: [
+					"dnsRecord",
+				],
+				operation: [
+					"update",
+				],
+			},
+		},
+	},
+	{
+		displayName: "TTL",
+		name: "ttl",
+		type: "number",
+		default: 0,
+		description: "Time-to-live in seconds. Controls how long resolvers cache this record.",
+		required: true,
+		displayOptions: {
+			show: {
+				resource: [
+					"dnsRecord",
+				],
+				operation: [
+					"update",
+				],
+			},
+		},
+	},
+	{
+		displayName: "Additional Fields",
+		name: "additionalFields",
+		type: "collection",
+		placeholder: "Add Field",
+		default: {},
+		displayOptions: {
+			show: {
+				resource: [
+					"dnsRecord",
+				],
+				operation: [
+					"update",
+				],
+			},
+		},
+		options: [
+			{
+				displayName: "Flag",
+				name: "flag",
+				type: "number",
+				default: 0,
+				description: "Flag byte for CAA records. 0 indicates non-critical; 128 indicates critical (the issuer must understand the tag property to proceed).",
+			},
+			{
+				displayName: "Port",
+				name: "port",
+				type: "number",
+				default: 0,
+				description: "Port number for SRV records",
+			},
+			{
+				displayName: "Priority",
+				name: "priority",
+				type: "number",
+				default: 0,
+				description: "Priority value for MX and SRV records. Lower values are preferred.",
+			},
+			{
+				displayName: "Protocol",
+				name: "protocol",
+				type: "string",
+				default: "",
+				description: "Protocol identifier for SRV records (e.g. _tcp, _udp)",
+			},
+			{
+				displayName: "Service",
+				name: "service",
+				type: "string",
+				default: "",
+				description: "Service label for SRV records (e.g. _http)",
+			},
+			{
+				displayName: "Tag",
+				name: "tag",
+				type: "string",
+				default: "",
+				description: "Tag property for CAA records. Common values: issue, issuewild, iodef.",
+			},
+			{
+				displayName: "Weight",
+				name: "weight",
+				type: "number",
+				default: 0,
+				description: "Weight for SRV load balancing among records with equal priority. Higher weight increases the probability of selection.",
 			},
 		],
 	},
