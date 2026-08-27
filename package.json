@@ -28,6 +28,7 @@
 	"main": "index.js",
 	"scripts": {
 		"fetch-spec": "node scripts/fetch-spec.mjs",
+		"spec-report": "node scripts/spec-report.mjs",
 		"generate": "node scripts/generate.mjs",
 		"build": "npm run generate && tsc && npm run copy:icons && npm run copy:codex",
 		"copy:icons": "mkdir -p dist/nodes/GoDaddy dist/credentials && cp nodes/GoDaddy/*.svg dist/nodes/GoDaddy/ && cp credentials/*.svg dist/credentials/",

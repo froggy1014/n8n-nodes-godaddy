@@ -2,7 +2,9 @@
 # feed or changelog for it, so the spec JSON itself is the source of truth:
 # this workflow re-fetches it weekly and diffs the stored copy. Any change
 # (version bump or silent content edit) regenerates the node, bumps the
-# package version, and opens a PR with the diff.
+# package version, and opens a PR with the diff plus an operation-level
+# report (scripts/spec-report.mjs), since operations added upstream but absent
+# from scripts/allowlist.json leave no trace in the generated diff.
 name: Update GoDaddy spec
 
 on:
@@ -38,6 +40,19 @@ jobs:
             echo "version=$(node -p "require('./scripts/spec/godaddy-version.json').version")" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Report operation changes
+        id: report
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          node scripts/spec-report.mjs > spec-report.md
+          {
+            echo 'body<<SPEC_REPORT_EOF'
+            cat spec-report.md
+            echo 'SPEC_REPORT_EOF'
+          } >> "$GITHUB_OUTPUT"
+          cat spec-report.md >> "$GITHUB_STEP_SUMMARY"
+          rm spec-report.md
+
       - name: Regenerate from new spec
         if: steps.diff.outputs.changed == 'true'
         run: |
@@ -60,7 +75,10 @@ jobs:
             - GoDaddy has no release feed; this PR was opened because the fetched spec differs from the stored copy.
             - Spec re-fetched, descriptions/registry regenerated, build and lint passed in CI.
 
-            Review the generated diff (`nodes/GoDaddy/descriptions/`, `nodes/GoDaddy/registry.ts`) for
-            removed or renamed operations before merging.
+            Review the generated diff (`nodes/GoDaddy/descriptions/`, `nodes/GoDaddy/registry.ts`)
+            before merging — the version bump is always `minor`, so check for breaking changes
+            such as dropped enum values.
+
+            ${{ steps.report.outputs.body }}
           labels: spec-update
           delete-branch: true

@@ -237,6 +237,15 @@ for (const [resource, resDef] of Object.entries(allowlist)) {
 		resDef.operations[a].name.localeCompare(resDef.operations[b].name),
 	);
 
+	// Upfront so a spec that dropped an allowlisted operation fails by name rather
+	// than as a TypeError from the first opsById lookup below.
+	for (const v of opValues) {
+		const { operationId } = resDef.operations[v];
+		if (!opsById[operationId]) {
+			throw new Error(`operationId not in spec: ${operationId} (allowlist: ${resource}.${v})`);
+		}
+	}
+
 	const operationsProperty = {
 		displayName: 'Operation',
 		name: 'operation',
@@ -257,7 +266,6 @@ for (const [resource, resDef] of Object.entries(allowlist)) {
 	for (const opValue of opValues) {
 		const { operationId } = resDef.operations[opValue];
 		const entry = opsById[operationId];
-		if (!entry) throw new Error(`operationId not in spec: ${operationId}`);
 		const params = collectParams(entry);
 
 		const show = { resource: [resource], operation: [opValue] };
