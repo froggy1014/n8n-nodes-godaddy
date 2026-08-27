@@ -50,7 +50,7 @@ jobs:
         if: steps.diff.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
-          branch: spec-update/v${{ steps.diff.outputs.version }}
+          branch: feat/godaddy-spec-v${{ steps.diff.outputs.version }}
           commit-message: 'feat: update to GoDaddy Domains API v${{ steps.diff.outputs.version }}'
           title: 'Update to GoDaddy Domains API v${{ steps.diff.outputs.version }}'
           body: |
