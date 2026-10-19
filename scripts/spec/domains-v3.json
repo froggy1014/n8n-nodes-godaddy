@@ -668,7 +668,7 @@
      "Discovery"
     ],
     "summary": "Check availability of a single domain",
-    "description": "Returns an indicative availability result for one domain, including\nper-term pricing when available. Availability is best-effort; the\nauthoritative check is performed at quote time. This operation does\nnot persist the check — there is no check identity or poll URL.\n\nA domain that cannot be checked is still returned as a `200` with an\n`error` object on the body; request-level failures use the `4xx` responses.\n",
+    "description": "Returns an indicative availability and pricing result for a single domain. Best-effort only; the authoritative check runs at quote time. Unavailable or uncheckable domains return 200 with an error object; request-level failures use 4xx.",
     "parameters": [
      {
       "$ref": "#/components/parameters/xRequestId"
@@ -820,7 +820,7 @@
      "Discovery"
     ],
     "summary": "Check availability of one or more specific domains",
-    "description": "Batch controller for domain availability checking. Accepts 1–25 domain\nnames alongside optional check criteria (optimization mode, ISC pricing\ncode). Returns one Availability result per requested domain in input\norder inside `{ items: [...] }`. Domains that cannot be checked carry\nan `error` object on that item.\n\nFor a single domain, GET /check-availability (getDomainAvailability)\noffers the same check semantics and Availability result without a\nrequest body; the response is the lone item unwrapped.\n\nAvailability is best-effort indicative; the authoritative check is\nalways performed at quote time. This controller does not persist the\ncheck — there is no check identity or poll URL.\n",
+    "description": "Batch availability check for 1-25 domains. Returns one availability result per domain in input order. Domains that cannot be checked carry an error object on that item; the overall request still returns 200. Results are indicative; the authoritative check runs at quote time.",
     "parameters": [
      {
       "$ref": "#/components/parameters/xRequestId"
@@ -995,7 +995,7 @@
      "Registration Quotes"
     ],
     "summary": "Quote a single-domain registration (no commitment)",
-    "description": "Prices the registration, resolves contact and preference settings,\nreturns required legal agreements, and mints a single-use quoteToken\nwith a 10-minute TTL. Free and read-only; safe to call speculatively.\n\nWhen the domain is unavailable, `available: false` is returned with\nno quoteToken — this is a valid non-error response.\n\nWhen required contact fields are missing, a `422` is returned with\nfield-level details so the agent can collect the missing data and re-quote.\n\nMay pass `iscCode` to lock pricing at applicable rates;\nthe same value must be supplied on /registrations if provided here.\nThe `period` supplied here must be re-supplied on /registrations;\na mismatch returns `quote_mismatch`.\nIf `profile` or `profileId` is supplied here, the same value must be\nre-supplied on /registrations; a mismatch returns `quote_mismatch`.\n\n**PREMIUM domains:** when the quoted domain has inventory `PREMIUM`,\nthe response includes a `fees` array containing a\n`ONE_TIME_PREMIUM_DOMAIN_PURCHASE` entry. The execute request must\necho this array verbatim in `consent.acknowledgedFees` to confirm\nthe customer accepted the specific charge before the irreversible\npurchase proceeds.\n",
+    "description": "Prices the registration, resolves contact settings, and returns required legal agreements alongside a single-use quoteToken (10-minute TTL). Free and read-only; safe to call speculatively. Returns 422 with field-level detail when required contacts are missing.",
     "parameters": [
      {
       "$ref": "#/components/parameters/xRequestId"
@@ -1113,7 +1113,7 @@
      "Registrations"
     ],
     "summary": "Register a domain (requires quoteToken)",
-    "description": "Executes a previously quoted domain registration. **Irreversible once\naccepted; creates a charge.** Requires a valid unexpired quoteToken from\n`quoteDomainRegistration`, an `Idempotency-Key` header, and a consent\nrecord. The target domain and period are in the request body alongside\nthe quoteToken.\n\nBefore calling this endpoint, retrieve `requiredAgreements` from the\nquote response and review each agreement before submitting the registration. Each agreement\nincludes a `title` (display label) and optional `url` (full legal text).\nThe `consent.agreementTypes` array must contain the `agreementType` value\nfrom every item in `requiredAgreements`; a mismatch returns\n`INVALID_AGREEMENT_KEYS`.\n\nIdempotency takes precedence over the single-use check: retrying with\nthe same `Idempotency-Key` replays the original operation even after\nthe token is consumed.\n\nReturns a `Registration` entity. Poll `links[rel=self]`\n(`GET /registrations/{registrationId}`) until status is `COMPLETED` or\n`FAILED`. The `operationId` field is also provided for clients that\nprefer `GET /operations/{operationId}`; both resolve the same resource.\n\nPoll either until status is `COMPLETED` or `FAILED`. The operation is\nfire-and-forget; always poll at least once even if the server completed\nit synchronously.\n\nWhen `iscCode` was supplied at quote time, the same value must be\nprovided here or the request fails with `422 quote_mismatch`.\nWhen `period` was supplied at quote time, the same value must be\nprovided here or the request fails with `422 quote_mismatch`.\nWhen `profile` or `profileId` was supplied at quote time, the same\nvalue must be provided here or the request fails with `422 quote_mismatch`.\n\n**PREMIUM domains:** when the quote's `fees` array is non-empty\n(inventory `PREMIUM`), the execute request must include\n`consent.acknowledgedFees` containing the same fees verbatim —\nsame types, amounts, and currencies. This confirms the customer\nexplicitly saw and accepted the specific charge before the\nirreversible purchase is executed.\n\n- `acknowledgedFees` absent when fees exist → `422` with error\n  name `consent_fees_required` (conditionally required by the quote; the\n  constraint spans two requests and cannot be expressed in the\n  schema).\n- `acknowledgedFees` present but type or amount does not match\n  the locked quote → `422` with error name `quote_mismatch`.\n",
+    "description": "Executes a previously quoted domain registration. Irreversible once accepted; creates a charge. Requires a valid unexpired quoteToken, an Idempotency-Key header, and a consent record. Returns a Registration entity; poll links[rel=self] until status is COMPLETED or FAILED.",
     "parameters": [
      {
       "$ref": "#/components/parameters/xRequestId"
@@ -1319,7 +1319,7 @@
      "Domains"
     ],
     "summary": "List registered domains",
-    "description": "Returns a paginated collection of domain names owned by the authenticated account. Supports filtering by statuses and cursor-based pagination. The statuses and lifecycleGroups parameters are mutually exclusive; supplying both returns 400 Bad Request. An unrecognized value for statuses or lifecycleGroups returns 400 Bad Request.\n",
+    "description": "Returns a paginated collection of domain names owned by the authenticated account. Supports filtering by statuses or lifecycleGroups (mutually exclusive; supplying both returns 400). An unrecognized status or lifecycle group value also returns 400.",
     "parameters": [
      {
       "$ref": "#/components/parameters/xRequestId"
@@ -1635,6 +1635,200 @@
     }
    }
   },
+  "/domain-names/{domain-name}/auto-renew": {
+   "post": {
+    "operationId": "setAutoRenew",
+    "tags": [
+     "Domain Management"
+    ],
+    "summary": "Set auto-renew setting for a domain",
+    "description": "Sets the auto-renewal preference for the domain. When enabled, the domain will be automatically renewed before expiration using the payment method on file. Returns a DomainOperation; propagation to the registry is asynchronous.\n",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/xRequestId"
+     },
+     {
+      "$ref": "#/components/parameters/domainNamePath"
+     },
+     {
+      "$ref": "#/components/parameters/idempotencyKey"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "boolean",
+        "description": "Whether auto-renewal should be enabled for this domain. When true, the domain will be automatically renewed before expiration using the payment method on file.\n"
+       },
+       "examples": {
+        "enableAutoRenew": {
+         "summary": "Enable auto-renewal",
+         "value": true
+        },
+        "disableAutoRenew": {
+         "summary": "Disable auto-renewal",
+         "value": false
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "responses": {
+     "202": {
+      "description": "Auto-renew update accepted; poll the operation for completion.",
+      "headers": {
+       "X-Request-Id": {
+        "$ref": "#/components/headers/xRequestId"
+       },
+       "Location": {
+        "$ref": "#/components/headers/location"
+       },
+       "Retry-After": {
+        "$ref": "#/components/headers/retryAfter"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DomainOperation"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/400",
+      "description": "Malformed request body (must be a boolean value: true or false).\n"
+     },
+     "401": {
+      "$ref": "#/components/responses/401"
+     },
+     "403": {
+      "$ref": "#/components/responses/403",
+      "description": "Forbidden. The authenticated user does not have permission to modify this domain's auto-renew settings.\n"
+     },
+     "404": {
+      "$ref": "#/components/responses/404",
+      "description": "Domain not found in the authenticated account.\n"
+     },
+     "409": {
+      "$ref": "#/components/responses/409",
+      "description": "Domain state conflict. The domain cannot be modified while in certain states (e.g., transfer in progress, domain locked or held).\n"
+     },
+     "422": {
+      "$ref": "#/components/responses/422",
+      "description": "Unprocessable request. Possible reasons: - Domain status is not ACTIVE (e.g., HELD_REGISTRAR, LOCKED_REGISTRAR,\n  PENDING_TRANSFER, SUSPENDED, EXPIRED)\n- Requested auto-renew state already matches the current setting - Registry or TLD-specific restrictions prevent the change\n"
+     },
+     "429": {
+      "$ref": "#/components/responses/429",
+      "description": "Too many requests. Rate limit exceeded; retry after the time specified in the Retry-After header.\n"
+     }
+    }
+   }
+  },
+  "/domain-names/{domain-name}/transfer-lock": {
+   "post": {
+    "operationId": "setTransferLock",
+    "tags": [
+     "Domain Management"
+    ],
+    "summary": "Set transfer-lock setting for a domain",
+    "description": "Sets the transfer lock (also known as registrar lock) for the domain. When enabled, the domain cannot be transferred to another registrar without first unlocking it. Disabling transfer lock is typically a prerequisite step for initiating an outbound domain transfer. Returns a DomainOperation; propagation to the registry is asynchronous.\n",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/xRequestId"
+     },
+     {
+      "$ref": "#/components/parameters/domainNamePath"
+     },
+     {
+      "$ref": "#/components/parameters/idempotencyKey"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "boolean",
+        "description": "Whether transfer lock should be enabled for this domain. When true, the domain cannot be transferred to another registrar without first unlocking it. This helps prevent unauthorized domain transfers.\n"
+       },
+       "examples": {
+        "enableTransferLock": {
+         "summary": "Enable transfer lock",
+         "value": true
+        },
+        "disableTransferLock": {
+         "summary": "Disable transfer lock",
+         "value": false
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "responses": {
+     "202": {
+      "description": "Transfer lock update accepted; poll the operation for completion.",
+      "headers": {
+       "X-Request-Id": {
+        "$ref": "#/components/headers/xRequestId"
+       },
+       "Location": {
+        "$ref": "#/components/headers/location"
+       },
+       "Retry-After": {
+        "$ref": "#/components/headers/retryAfter"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DomainOperation"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/400",
+      "description": "Malformed request body (must be a boolean value: true or false).\n"
+     },
+     "401": {
+      "$ref": "#/components/responses/401"
+     },
+     "403": {
+      "$ref": "#/components/responses/403",
+      "description": "Forbidden. The authenticated user does not have permission to modify this domain's transfer lock settings.\n"
+     },
+     "404": {
+      "$ref": "#/components/responses/404",
+      "description": "Domain not found in the authenticated account.\n"
+     },
+     "409": {
+      "$ref": "#/components/responses/409",
+      "description": "Domain state conflict. The domain cannot be modified while in certain states (e.g., transfer in progress, domain held).\n"
+     },
+     "422": {
+      "$ref": "#/components/responses/422",
+      "description": "Unprocessable request. Possible reasons: - Domain status is not ACTIVE (e.g., HELD_REGISTRAR, PENDING_TRANSFER,\n  SUSPENDED, EXPIRED)\n- Requested transfer lock state already matches the current setting - TLD does not support transfer locking (some TLDs do not offer this feature) - Registry or TLD-specific restrictions prevent the change\n"
+     },
+     "429": {
+      "$ref": "#/components/responses/429",
+      "description": "Too many requests. Rate limit exceeded; retry after the time specified in the Retry-After header.\n"
+     }
+    }
+   }
+  },
   "/zones/{zone}/dns-records": {
    "get": {
     "operationId": "listDNSRecords",
@@ -1642,7 +1836,7 @@
      "Records"
     ],
     "summary": "List DNS records in a zone",
-    "description": "Returns a paginated collection of DNS resource records for the\nspecified zone. Supports filtering by record type and host name,\nfield projection, and page-based pagination.\n\nPagination uses page (1-based) and pageSize query parameters.\nPass totalRequired=true to include totalItems and totalPages when\nat least one record matches; both are omitted for empty result\nsets. Defaults to false to avoid count-query overhead.\n\nFilter parameters are combined with logical AND. Pagination links\nin the response preserve active filter, pagination, and\nfield-projection parameters.\n\nsortBy and sortOrder are not supported. Results are always\nreturned in canonical zone-file order: resource record type (IANA\nRR type number ascending — e.g. A before NS before CNAME), then\nname, then data. This matches authoritative DNS ordering and is\nnot client-configurable.\n",
+    "description": "Returns a paginated collection of DNS records for the zone. Supports filtering by record type and name (combined with AND), field projection, and page-based pagination. Pass totalRequired=true to include totalItems and totalPages in the response.",
     "parameters": [
      {
       "$ref": "#/components/parameters/xRequestId"
@@ -1869,7 +2063,7 @@
      "Records"
     ],
     "summary": "Replace a DNS record",
-    "description": "Fully replaces an existing DNS resource record identified by\nrecordId within the zone. All writable fields (name, type, data,\nttl) must be supplied; partial updates are not supported on this\nendpoint. Changes are applied synchronously.\n\nGoDaddy-managed system records (SOA and NS) are read-only. When\nrecordId refers to such a record, the request fails with\n`409 Conflict` — the record exists but cannot be modified.\n",
+    "description": "Fully replaces an existing DNS record identified by recordId. All writable fields (name, type, data, ttl) must be supplied; partial updates are not supported. Changes are applied synchronously. GoDaddy-managed records (SOA, NS) are read-only and return 409 when targeted.",
     "parameters": [
      {
       "$ref": "#/components/parameters/xRequestId"
@@ -1952,7 +2146,7 @@
      "Records"
     ],
     "summary": "Delete a DNS record",
-    "description": "Permanently removes a DNS resource record from the zone. The\nrecordId must refer to an existing record within the specified\nzone. Changes are applied synchronously.\n\nGoDaddy-managed system records (SOA and NS) are read-only. When\nrecordId refers to such a record, the request fails with\n`409 Conflict` — the record exists but cannot be deleted.\n",
+    "description": "Permanently removes a DNS record from the zone. The recordId must refer to an existing record in the specified zone. Changes are applied synchronously. GoDaddy-managed records (SOA, NS) are read-only and return 409 when targeted.",
     "parameters": [
      {
       "$ref": "#/components/parameters/xRequestId"
@@ -2006,7 +2200,7 @@
      "Operations"
     ],
     "summary": "Poll an async domain operation",
-    "description": "Universal poll endpoint for all asynchronous domain mutations. Returns\nthe current state of the operation. Non-terminal responses include a\n`Retry-After` header.\n\nTerminal statuses:\n- `COMPLETED` — operation succeeded; `result` contains the final outcome.\n- `FAILED` — operation terminated with an error; `error` contains detail.\n\nWhile status is non-terminal (`CONFIRMED`, `EXECUTING`), neither\n`result` nor `error` is present. Poll until a terminal status is reached.\n\nThe poll URL is provided in the `Location` header of the initiating 202\nresponse and in `links[rel=self]`. Clients must not construct this URL\nindependently.\n",
+    "description": "Universal poll endpoint for all asynchronous domain mutations. Non-terminal responses include a Retry-After header. Terminal statuses are COMPLETED (result field present) and FAILED (error field present). Poll using the URL from the initiating 202 Location header or links[rel=self].",
     "parameters": [
      {
       "$ref": "#/components/parameters/xRequestId"
@@ -2947,8 +3141,7 @@
     },
     "transferLock": {
      "type": "boolean",
-     "description": "Whether the registry transfer-lock (clientTransferProhibited) is engaged. When true, outbound transfers to another registrar are blocked at the registry.\n",
-     "readOnly": true
+     "description": "Whether the registry transfer-lock (clientTransferProhibited) is engaged. When true, outbound transfers to another registrar are blocked at the registry.\n"
     },
     "nameServers": {
      "allOf": [
@@ -2969,7 +3162,7 @@
      "items": {
       "$ref": "#/x-ext/590647a"
      },
-     "description": "HATEOAS links for domain sub-resources. rel=self — canonical URL for this domain resource. rel=nameservers — nameserver management sub-resource. rel=contacts — contact management sub-resource. rel=privacy — privacy toggle sub-resource.\n",
+     "description": "HATEOAS links for domain sub-resources. rel=self — canonical URL for this domain resource. rel=nameservers — nameserver management sub-resource. rel=contacts — contact management sub-resource. rel=privacy — privacy toggle sub-resource. rel=auto-renew — auto-renewal setting sub-resource. rel=transfer-lock — transfer lock setting sub-resource.\n",
      "readOnly": true
     }
    }
